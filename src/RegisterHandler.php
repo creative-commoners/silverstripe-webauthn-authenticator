@@ -47,6 +47,15 @@ class RegisterHandler implements RegisterHandlerInterface
     private static $user_help_link;
 
     /**
+     * Time, in milliseconds, that the caller is willing to wait for the call to complete. This is treated as a hint,
+     * and may be overridden by the client.
+     *
+     * @config
+     * @var int
+     */
+    private static $timeout = 40000;
+
+    /**
      * Stores any data required to handle a registration process with a method, and returns relevant state to be applied
      * to the front-end application managing the process.
      *
@@ -211,7 +220,7 @@ class RegisterHandler implements RegisterHandlerInterface
             [
                 new PublicKeyCredentialParameters('public-key', Algorithms::COSE_ALGORITHM_ES256)
             ],
-            40000,
+            (int) $this->config()->get('timeout'),
             [],
             new AuthenticatorSelectionCriteria(),
             PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE,
