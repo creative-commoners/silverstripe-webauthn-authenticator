@@ -5,6 +5,7 @@ namespace SilverStripe\WebAuthn;
 use CBOR\Decoder;
 use CBOR\OtherObject\OtherObjectManager;
 use CBOR\Tag\TagObjectManager;
+use Cose\Algorithms;
 use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
 use SilverStripe\Control\HTTPRequest;
@@ -207,7 +208,9 @@ class RegisterHandler implements RegisterHandlerInterface
             $this->getRelyingPartyEntity(),
             $this->getUserEntity($store->getMember()),
             random_bytes(32),
-            [new PublicKeyCredentialParameters('public-key', PublicKeyCredentialParameters::ALGORITHM_ES256)],
+            [
+                new PublicKeyCredentialParameters('public-key', Algorithms::COSE_ALGORITHM_ES256)
+            ],
             40000,
             [],
             new AuthenticatorSelectionCriteria(),
