@@ -69,8 +69,12 @@ class VerifyHandler implements VerifyHandlerInterface
         $attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, $decoder);
 
         $publicKeyCredentialLoader = new PublicKeyCredentialLoader($attestationObjectLoader, $decoder);
-
-        $credentialRepository = new CredentialRepository($store->getMember(), $registeredMethod);
+        $publicKeyCredential = $publicKeyCredentialLoader->load(base64_decode($data['credentials']));
+        $credentialRepository = PublicKeyCredentialSourceRepository::create(
+            $publicKeyCredential,
+            $store->getMember(),
+            $registeredMethod
+        );
 
         $authenticatorAssertionResponseValidator = new AuthenticatorAssertionResponseValidator(
             $credentialRepository,
@@ -83,7 +87,6 @@ class VerifyHandler implements VerifyHandlerInterface
         $psrRequest = ServerRequest::fromGlobals();
 
         try {
-            $publicKeyCredential = $publicKeyCredentialLoader->load(base64_decode($data['credentials']));
             $response = $publicKeyCredential->getResponse();
 
             if (!$response instanceof AuthenticatorAssertionResponse) {

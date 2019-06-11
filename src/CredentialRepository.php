@@ -12,6 +12,10 @@ use Webauthn\CredentialRepository as CredentialRepositoryInterface;
 /**
  * This interface is required by the WebAuthn library but is too exhaustive for our "one security key per person"
  * registration. We only support one and it's stored on the registered method that's a dependency of the constructor
+ *
+ * @deprecated 1.0.0 \Webauthn\CredentialRepository is deprecated and will be removed in its 2.0 version. This class
+ * will be removed when this module requires web-auth/webauthn-lib ^2.0. Use PublicKeyCredentialSourceRepository now
+ * to prevent breaking changes, as this class will likely be removed in a minor release in future.
  */
 class CredentialRepository implements CredentialRepositoryInterface
 {

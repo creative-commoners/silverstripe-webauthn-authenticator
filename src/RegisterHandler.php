@@ -97,8 +97,8 @@ class RegisterHandler implements RegisterHandlerInterface
         $attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, $decoder);
 
         $publicKeyCredentialLoader = new PublicKeyCredentialLoader($attestationObjectLoader, $decoder);
-
-        $credentialRepository = new CredentialRepository($store->getMember());
+        $publicKeyCredential = $publicKeyCredentialLoader->load(base64_decode($data['credentials']));
+        $credentialRepository = PublicKeyCredentialSourceRepository::create($publicKeyCredential, $store->getMember());
 
         $authenticatorAttestationResponseValidator = new AuthenticatorAttestationResponseValidator(
             $attestationStatementSupportManager,
@@ -111,7 +111,9 @@ class RegisterHandler implements RegisterHandlerInterface
         $request = ServerRequest::fromGlobals();
 
         try {
-            $publicKeyCredential = $publicKeyCredentialLoader->load(base64_decode($data['credentials']));
+            $credentialRepository->saveCredentialSource(
+                $credentialRepository->findOneByCredentialId($publicKeyCredential->getId())
+            );
             $response = $publicKeyCredential->getResponse();
 
             if (!$response instanceof AuthenticatorAttestationResponse) {
