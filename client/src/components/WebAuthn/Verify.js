@@ -6,7 +6,9 @@ import { base64ToByteArray, byteArrayToBase64 } from 'lib/convert';
 class Verify extends Component {
   constructor(props) {
     super(props);
-
+    this.state = {
+      failed: false,
+    };
     this.handleStartAuth = this.handleStartAuth.bind(this);
   }
 
@@ -21,6 +23,10 @@ class Verify extends Component {
         id: base64ToByteArray(data.id),
       })),
     };
+
+    this.setState({
+      failed: false,
+    });
 
     navigator.credentials.get({ publicKey: parsed })
       .then(response => {
@@ -41,7 +47,9 @@ class Verify extends Component {
         });
       })
       .catch(error => {
-        console.log('nay', error, error.message);
+        this.setState({
+          failed: error,
+        });
       });
   }
 
@@ -55,14 +63,32 @@ class Verify extends Component {
    *
    * @return {HTMLElement}
    */
-  renderDescription() {
+  renderFailureDescription() {
+    const { ss: { i18n } } = window;
+    const { moreOptionsControl } = this.props;
+
+    return (
+      <div>
+        <p>
+          {i18n._t(
+            'MFAWebAuthnVerify.FAIL_DESCRIPTION',
+            'Something seems to have gone wrong with your authentication.'
+          )}
+        </p>
+        {moreOptionsControl}
+        <button onClick={this.handleStartAuth}>Try again</button>
+      </div>
+    );
+  }
+
+  renderSpinner() {
     const { ss: { i18n } } = window;
 
     return (
       <p>
         {i18n._t(
-          'MFAWebAuthnVerify.DESCRIPTION',
-          'Use your security key'
+          'MFAWebAuthnVerify.USE_DESCRIPTION',
+          'Use your hardware security device...'
         )}
       </p>
     );
@@ -70,15 +96,13 @@ class Verify extends Component {
 
 
   render() {
-    const { moreOptionsControl } = this.props;
+    const { failed } = this.state;
 
     return (
       <form className="mfa-verify-web-authn__container">
         <div className="mfa-verify-web-authn__content">
-          {this.renderDescription()}
+          { failed ? this.renderFailureDescription() : this.renderSpinner() }
         </div>
-        <button onClick={this.handleStartAuth}>Do it</button>
-        {moreOptionsControl}
         <div className="mfa-verify-web-authn__icon" />
       </form>
     );
